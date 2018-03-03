@@ -8,4 +8,8 @@ function init()
     app.renderer.backgroundColor = 0xffffff;
 
     var bgtexture = PIXI.Texture.fromImage("game_area.png");
+	bg = new PIXI.Sprite(bgtexture);
+    bg.position.x = 0;
+    bg.position.y = 0;
+    app.stage.addChild(bg);
 }
