@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<font>
+<info face="Arial" size="25" bold="0" italic="0" charset="" unicode="0" stretchH="100" smooth="1" aa="1" padding="0,0,0,0" spacing="0,0"  />
+<common lineHeight="29" base="20" scaleW="128" scaleH="128" pages="1" packed="0"  />
+<pages>
+<page id="0" file="SafeDigits-ipad.png" />
+
+</pages>
+<chars count="11" >
+<char id="32" x="108" y="16" width="0" height="0" xoffset="0" yoffset="22" xadvance="7" page="0" chnl="0"  />
+<char id="48" x="1" y="87" width="20" height="20" xoffset="0" yoffset="0" xadvance="20" page="0" chnl="0"  />
+<char id="49" x="108" y="1" width="14" height="14" xoffset="0" yoffset="0" xadvance="14" page="0" chnl="0"  />
+<char id="50" x="1" y="66" width="20" height="20" xoffset="0" yoffset="0" xadvance="20" page="0" chnl="0"  />
+<char id="51" x="1" y="45" width="20" height="20" xoffset="0" yoffset="0" xadvance="20" page="0" chnl="0"  />
+<char id="52" x="1" y="1" width="22" height="22" xoffset="0" yoffset="0" xadvance="22" page="0" chnl="0"  />
+<char id="53" x="1" y="24" width="20" height="20" xoffset="0" yoffset="0" xadvance="20" page="0" chnl="0"  />
+<char id="54" x="87" y="1" width="20" height="20" xoffset="0" yoffset="0" xadvance="20" page="0" chnl="0"  />
+<char id="55" x="66" y="1" width="20" height="20" xoffset="0" yoffset="0" xadvance="20" page="0" chnl="0"  />
+<char id="56" x="45" y="1" width="20" height="20" xoffset="0" yoffset="0" xadvance="20" page="0" chnl="0"  />
+<char id="57" x="24" y="1" width="20" height="20" xoffset="0" yoffset="0" xadvance="20" page="0" chnl="0"  />
+
+</chars>
+<kernings count="1" >
+<kerning first="49" second="49" amount="-1"  />
+
+</kernings>
+</font>

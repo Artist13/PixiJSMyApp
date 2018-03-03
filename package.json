@@ -1,0 +1,23 @@
+{
+    "name": "first-pixi",
+    "version": "1.0.0",
+    "description": "first app with PIXI",
+    "main": "helloworld.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "browser-sync start --server --files '*.js'"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "",
+    "dependencies": {
+        "pixi-audio": "^0.1.0",
+        "pixi-sound": "^2.0.1",
+        "pixi.js": "^4.7.0"
+    },
+    "devDependencies": {
+        "browser-sync": "^2.23.6",
+        "pixi-audio": "0.1.0",
+        "pixi-sound": "2.0.1"
+    }
+}
