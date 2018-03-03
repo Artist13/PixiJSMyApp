@@ -1,4 +1,14 @@
 var app;
+var buttons = new Array();
+
+
+function addButton(){
+    var button = new PIXI.Sprite.fromImage('chip.png');
+    button.interactive = true;
+    button.buttonMode = true;
+    button.anchor.set(0.5);
+    return button;
+};
 
 function init()
 {
@@ -12,4 +22,16 @@ function init()
     bg.position.x = 0;
     bg.position.y = 0;
     app.stage.addChild(bg);
+	
+	for(var row = 0; row < 4; row++)
+    {
+        for(var col = 0; col < 4; col++)
+        {
+            button = addButton();
+            button.x = 102 + (204) * col;
+            button.y = 102 + (204) * row;
+            buttons.push(button);
+            app.stage.addChild(buttons[row * 4 + col]);
+        }
+    }
 }
