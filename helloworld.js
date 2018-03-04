@@ -3,6 +3,36 @@ var buttons = new Array();
 var numbers = new Array();
 var firstBT, secondBT;
 
+var direct = -1;
+const ticker = new PIXI.ticker.Ticker();
+ticker.stop();
+ticker.add((delta) =>{
+    scale = scale + direct * 0.05;
+        firstBT.scale.set(scale);
+        secondBT.scale.set(scale);
+        if(scale < 0)
+        {
+            scale = 0;
+            ticker.stop();
+            firstBT.scale.set(scale);
+            secondBT.scale.set(scale);
+            firstBT.removeChild(firstBG);
+            secondBT.removeChild(secondBG);
+            direct = 1;
+            ticker.start();
+        }
+        if(scale > 1)
+        {
+            scale = 1;
+            ticker.stop();
+            firstBT.scale.set(scale);
+            secondBT.scale.set(scale);
+            firstBT = null;
+            secondBT = null;
+            direct = -1;
+        }
+});
+
 const onClick = event =>{
     if(firstBT == null)
     {
@@ -24,6 +54,18 @@ const onClick = event =>{
             secondBG = new PIXI.Sprite(glowTexture);
             secondBG.anchor.set(0.5);
             secondBT.addChild(secondBG);
+			if(firstBT.value == secondBT.value)
+            {
+                scale = 1;
+                ticker.start();
+            }
+            else
+            {
+                firstBT.removeChild(firstBG);
+                secondBT.removeChild(secondBG);
+                firstBT = null;
+                secondBT = null;
+            }
         }
 }
 
