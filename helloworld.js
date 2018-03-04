@@ -12,9 +12,7 @@ var numbers = new Array();
 
 
 var firstOfPair, secondOfPair;
-function ind(value){
-    }
-var test_button;
+
 //Поиск парного значения для функции подрагивания
 function FindPair()
 {
@@ -31,7 +29,7 @@ function FindPair()
 const shake = new PIXI.ticker.Ticker();
 var angle = 0;
 var rotateDirect = 1;
-const maxAngle = 10;//Угол на который поворачиваются фишки P.S. 1 градус незаметен для глаза
+const maxAngle = 1;//Угол на который поворачиваются фишки P.S. 1 градус незаметен для глаза
 shake.stop();
 shake.add(() =>{
     angle += rotateDirect * (maxAngle * Math.PI / (180 * 15));//Регулировка скорости поворота. Частота кадров 60
@@ -183,15 +181,15 @@ function addNumber(button){
             {
                 var ten = new PIXI.Sprite() ;
                 var number = new PIXI.Sprite(numbers[1]);
-                number.scale.set(1.2);
+                number.scale.set(1.5);
                 number.anchor.set(0.5);
-                number.x = -25;
+                number.x = -35;
                 number.y = 0;
                 ten.addChild(number);
                 number = new PIXI.Sprite(numbers[0]);
                 number.anchor.set(0.5);
-                number.scale.set(1.2);
-                number.x = 15;
+                number.scale.set(1.5);
+                number.x = 25;
                 number.y = 0;
                 ten.addChild(number);
                 ten.anchor.set(0.5);
@@ -201,7 +199,7 @@ function addNumber(button){
             {
                 var number = new PIXI.Sprite(numbers[button.value]);
                 number.anchor.set(0.5);
-                number.scale.set(1.2);
+                number.scale.set(1.5);
                 button.addChild(number);
             }
 };
