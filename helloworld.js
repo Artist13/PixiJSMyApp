@@ -12,21 +12,15 @@ var numbers = new Array();
 
 
 var firstOfPair, secondOfPair;
-
+function ind(value){
+    }
 var test_button;
 //Поиск парного значения для функции подрагивания
 function FindPair()
 {
-    var k = 0;
-    while((secondOfPair == null) && (k < 16)){
-        var trySecond = Math.round(Math.random() * 15);
-        if((buttons[trySecond].value == firstOfPair.value) && (buttons[trySecond] != firstOfPair))
-        {
-            secondOfPair = buttons[trySecond];
-        }
-        k++;
-    }
-    log(k);
+    var tempArr = buttons.filter(x => x.value == firstOfPair.value && x != firstOfPair);
+    var index = Math.round(Math.random() * (tempArr.length - 1));
+    secondOfPair = tempArr[index];    
 };
 
 
@@ -78,10 +72,9 @@ shakingTicker.add(() =>{
         secondOfPair = null;
         while(secondOfPair == null)
         {
-            firstOfPair = buttons[Math.round(Math.random() * 15)]
-            FindPair(firstOfPair);
-            log(firstOfPair);
-            log
+            var index = Math.round(Math.random() * 15);
+            firstOfPair = buttons[index];
+            FindPair();
         }
         shakingTicker.stop();
         shake.start();
@@ -101,7 +94,6 @@ function newValueForBT(){
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'http://localhost:3030/', false);//Запрос новых значений для элементов
     xhr.send();
-    log(xhr.responseText);
     var num = JSON.parse(xhr.responseText);
     firstBT.children[0].destroy();
     secondBT.children[0].destroy();
@@ -146,6 +138,7 @@ ticker.add(() =>{
 });
 //Обработка нажатия на кнопку
 const onClick = event =>{
+    shakingTicker.stop();
     if(firstBT == null)
     {
         firstBT = event.currentTarget;
@@ -181,6 +174,8 @@ const onClick = event =>{
                 secondBT = null;
             }
         }
+    elapsedTime = 0;
+    shakingTicker.start();
 }
 //Добавление соответствующей цифры на кнопку
 function addNumber(button){
