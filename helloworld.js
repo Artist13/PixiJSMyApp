@@ -1,12 +1,37 @@
 var app;
 var buttons = new Array();
+var firstBT, secondBT;
 
+const onClick = event =>{
+    if(firstBT == null)
+    {
+        firstBT = event.currentTarget;
+        var glowTexture = PIXI.Texture.fromImage('glow.png');
+        firstBG = new PIXI.Sprite(glowTexture);
+        firstBG.anchor.set(0.5);
+        firstBT.addChild(firstBG);
+    }
+    else if(secondBT == null)
+        {
+            secondBT = event.currentTarget;
+            if(secondBT == firstBT)
+            {
+                secondBT = null;
+                return;
+            }
+            var glowTexture = PIXI.Texture.fromImage('glow.png');
+            secondBG = new PIXI.Sprite(glowTexture);
+            secondBG.anchor.set(0.5);
+            secondBT.addChild(secondBG);
+        }
+}
 
 function addButton(){
     var button = new PIXI.Sprite.fromImage('chip.png');
     button.interactive = true;
     button.buttonMode = true;
     button.anchor.set(0.5);
+	button.on('pointerdown', onClick);
     return button;
 };
 
