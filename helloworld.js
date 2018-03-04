@@ -8,14 +8,79 @@ var buttons = new Array();
 var numberTex;
 var numbers = new Array();
 
+var firstOfPair, secondOfPair;
 
+var test_button;
+//Поиск парного значения для функции подрагивания
+function FindPair()
+{
+    for(var i = 0; i < 16; i++)
+    {
+        if(buttons[i].value == firstOfPair.value && i != firstOfPair)
+        {
+            secondOfPair = buttons[i];
+        }
+    }
+};
+
+const shake = new PIXI.ticker.Ticker();
+var angle = 0;
+var rotateDirect = 1;
+shake.stop();
+shake.add(() =>{
+    angle += rotateDirect * (Math.PI / (180 * 60)); 
+    firstOfPair.rotation = angle;
+    secondOfPair.rotation = angle;
+    if(angle > 2 * (Math.PI / 180))
+    {
+        log("angle: {0}",angle);
+        rotateDirect = -1;
+        angle = 2 * (Math.PI / 180);
+        firstOfPair.rotation = angle;
+        secondOfPair.rotation = angle; 
+    }
+    if(angle < 0)
+    {
+        angle = 0;
+        rotateDirect = 1;
+        firstOfPair.rotation = 0;
+        secondOfPair.rotation = 0;
+        shake.stop();
+        firstOfPair = null;
+        secondOfPair = null;
+        shakingTicker.start();
+    }
+});
+
+
+//Подрагивание фишек при ожидании
+var elapsedTime = 0;
+const shakingTicker = new PIXI.ticker.Ticker();
+shakingTicker.stop();
+shakingTicker.add(() =>{
+    elapsedTime++;
+    //log("elapse time: {0}",elapsedTime);
+    if(elapsedTime > 50)
+    {
+        firstOfPair = null;
+        secondOfPair = null;
+        while(secondOfPair == null)
+        {
+            firstOfPair = buttons[Math.round(Math.random() * 15)]
+            FindPair(firstOfPair);
+        }
+        shakingTicker.stop();
+        shake.start();
+        elapsedTime = 0;
+    }
+});
 //Инициализация звуков
 var soundUp;
 var soundDown;
 function initMusic(){
     soundUp = PIXI.sound.Sound.from("./up.mp3");  
     soundDown = PIXI.sound.Sound.from("./down.mp3");  
-}
+};
 
 //Добавляет новые значения полученные с сервера
 function newValueForBT(){
@@ -35,34 +100,33 @@ function newValueForBT(){
 var direct = -1;
 const ticker = new PIXI.ticker.Ticker();
 ticker.stop();
-ticker.add((delta) =>{
+ticker.add(() =>{
     scale = scale + direct * 0.05;
+    firstBT.scale.set(scale);
+    secondBT.scale.set(scale);
+    if(scale < 0)
+    {
+        scale = 0;
+        ticker.stop();
         firstBT.scale.set(scale);
         secondBT.scale.set(scale);
-        if(scale < 0)
-        {
-            scale = 0;
-            ticker.stop();
-            firstBT.scale.set(scale);
-            secondBT.scale.set(scale);
-            firstBT.removeChild(firstBG);
-            secondBT.removeChild(secondBG);
-            newValueForBT();
-            direct = 1;
-            ticker.start();
-            soundUp.play();
-
-        }
-        if(scale > 1)
-        {
-            scale = 1;
-            ticker.stop();
-            firstBT.scale.set(scale);
-            secondBT.scale.set(scale);
-            firstBT = null;
-            secondBT = null;
-            direct = -1;
-        }
+        firstBT.removeChild(firstBG);
+        secondBT.removeChild(secondBG);
+        newValueForBT();
+        direct = 1;
+        ticker.start();
+        soundUp.play();
+    }
+    if(scale > 1)
+    {
+        scale = 1;
+        ticker.stop();
+        firstBT.scale.set(scale);
+        secondBT.scale.set(scale);
+        firstBT = null;
+        secondBT = null;
+        direct = -1;
+    }
 });
 //Обработка нажатия на кнопку
 const onClick = event =>{
@@ -135,7 +199,7 @@ function addButton(){
     var button = new PIXI.Sprite.fromImage('chip.png');
     button.interactive = true;
     button.buttonMode = true;
-    button.value = Math.round(Math.random() * 10);
+    button.value = Math.round(Math.random() * 9) + 1;
     button.anchor.set(0.5);
     addNumber(button);                    
     button.on('pointerdown', onClick);
@@ -151,8 +215,8 @@ function initNumbers(){
     numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(0,0,20,20)));//4
     numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(78,0,20,20)));//5
     numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(59,00,20,20)));//6
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(98,0,18,20)));//7
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(40,0,20,20)));//8
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(98,0,17,20)));//7
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(40,0,18,20)));//8
     numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(20,0,20,20)));//9
 };
 //Основна функция
@@ -182,4 +246,6 @@ function init()
             app.stage.addChild(buttons[row * 4 + col]);
         }
     }
+    shakingTicker.start();
+    test_button = buttons[0];
 }
