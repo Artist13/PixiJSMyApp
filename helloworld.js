@@ -8,34 +8,45 @@ var buttons = new Array();
 var numberTex;
 var numbers = new Array();
 
+//Для запроса новых значений с сервера необходимо запустить test.js в папке express
+
+
 var firstOfPair, secondOfPair;
 
 var test_button;
 //Поиск парного значения для функции подрагивания
 function FindPair()
 {
-    for(var i = 0; i < 16; i++)
-    {
-        if(buttons[i].value == firstOfPair.value && i != firstOfPair)
+    var k = 0;
+    while((secondOfPair == null) && (k < 16)){
+        var trySecond = Math.round(Math.random() * 15);
+        if((buttons[trySecond].value == firstOfPair.value) && (buttons[trySecond] != firstOfPair))
         {
-            secondOfPair = buttons[i];
+            secondOfPair = buttons[trySecond];
         }
+        k++;
     }
+    log(k);
 };
 
+
+
+//Подрагивание элементов
+//в каждый тик происходит поворот на часть необходимого угла
+//при достижении необходимого угла множитель задающий направление приравнивается к -1
 const shake = new PIXI.ticker.Ticker();
 var angle = 0;
 var rotateDirect = 1;
+const maxAngle = 10;//Угол на который поворачиваются фишки P.S. 1 градус незаметен для глаза
 shake.stop();
 shake.add(() =>{
-    angle += rotateDirect * (Math.PI / (180 * 60)); 
+    angle += rotateDirect * (maxAngle * Math.PI / (180 * 15));//Регулировка скорости поворота. Частота кадров 60
     firstOfPair.rotation = angle;
     secondOfPair.rotation = angle;
-    if(angle > 2 * (Math.PI / 180))
+    if(angle > maxAngle * (Math.PI / 180))
     {
-        log("angle: {0}",angle);
         rotateDirect = -1;
-        angle = 2 * (Math.PI / 180);
+        angle = maxAngle * (Math.PI / 180);
         firstOfPair.rotation = angle;
         secondOfPair.rotation = angle; 
     }
@@ -52,15 +63,16 @@ shake.add(() =>{
     }
 });
 
-
 //Подрагивание фишек при ожидании
+//каждые delay тиков выбирает две фишки и вызывает их подергивание
 var elapsedTime = 0;
+var delay = 120;
 const shakingTicker = new PIXI.ticker.Ticker();
 shakingTicker.stop();
 shakingTicker.add(() =>{
     elapsedTime++;
     //log("elapse time: {0}",elapsedTime);
-    if(elapsedTime > 50)
+    if(elapsedTime > delay)
     {
         firstOfPair = null;
         secondOfPair = null;
@@ -68,6 +80,8 @@ shakingTicker.add(() =>{
         {
             firstOfPair = buttons[Math.round(Math.random() * 15)]
             FindPair(firstOfPair);
+            log(firstOfPair);
+            log
         }
         shakingTicker.stop();
         shake.start();
@@ -85,7 +99,7 @@ function initMusic(){
 //Добавляет новые значения полученные с сервера
 function newValueForBT(){
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://localhost:3000/numbers.json', false);
+    xhr.open('GET', 'http://localhost:3030/', false);//Запрос новых значений для элементов
     xhr.send();
     log(xhr.responseText);
     var num = JSON.parse(xhr.responseText);
@@ -97,11 +111,13 @@ function newValueForBT(){
     addNumber(secondBT);
 }
 //Ticker для анимации уменьшения и увелечения кнопок
+//каждый тик уменьшает scale фишки
+//при достижении scale 0 заменяет значения на фишках и начинает их уеличивать
 var direct = -1;
 const ticker = new PIXI.ticker.Ticker();
 ticker.stop();
 ticker.add(() =>{
-    scale = scale + direct * 0.05;
+    scale += direct * 0.0666;//скорость уменьшения/увеличения
     firstBT.scale.set(scale);
     secondBT.scale.set(scale);
     if(scale < 0)
@@ -174,13 +190,13 @@ function addNumber(button){
                 var number = new PIXI.Sprite(numbers[1]);
                 number.scale.set(1.2);
                 number.anchor.set(0.5);
-                number.x = -10;
-                number.y = 3;
+                number.x = -25;
+                number.y = 0;
                 ten.addChild(number);
                 number = new PIXI.Sprite(numbers[0]);
                 number.anchor.set(0.5);
                 number.scale.set(1.2);
-                number.x = 10;
+                number.x = 15;
                 number.y = 0;
                 ten.addChild(number);
                 ten.anchor.set(0.5);
@@ -207,24 +223,24 @@ function addButton(){
 };
 //Создание текстур для цифр
 function initNumbers(){
-    numberTex = PIXI.Texture.fromImage("/BetFont/SafeDigits-hd.png");
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(0,57,20,20)));//0
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(115,0,13,20)));//1
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(0,39,20,18)));//2
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(0,20,20,19)));//3
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(0,0,20,20)));//4
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(78,0,20,20)));//5
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(59,00,20,20)));//6
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(98,0,17,20)));//7
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(40,0,18,20)));//8
-    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(20,0,20,20)));//9
+    numberTex = PIXI.Texture.fromImage("/BetFont/SafeDigits-ipadhd.png");
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(49,58,40,54)));//0 x="49" y="58" width="40" height="54"
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(91,113,29,54)));//1 x="91" y="113" width="29" height="54"
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(91,58,40,53)));//2  x="91" y="58" width="40" height="53"
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(135,2,40,54)));//3  x="135" y="2" width="40" height="54"
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(2,2,45,54)));//4   x="2" y="2" width="45" height="54"
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(92,2,41,53)));//5  x="92" y="2" width="41" height="53"
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(49,2,41,54)));//6  x="49" y="2" width="41" height="54"
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(49,114,40,53)));//7  x="49" y="114" width="40" height="53"
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(2,114,41,54)));//8  x="2" y="114" width="41" height="54"
+    numbers.push(new PIXI.Texture(numberTex, new PIXI.Rectangle(2,58,41,54)));//9  x="2" y="58" width="41" height="54"
 };
 //Основна функция
 function init()
 {
     initMusic();
     initNumbers();
-    app = new PIXI.Application(window.innerWidth, 2000);
+    app = new PIXI.Application(Window.innerWidth, 2000);
     app.renderer = PIXI.autoDetectRenderer(816, 816,{antialiasing: false, transparent: false, resolution: 1});
     document.body.appendChild(app.view);
     app.renderer.backgroundColor = 0xffffff;
