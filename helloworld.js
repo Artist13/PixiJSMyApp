@@ -1,7 +1,6 @@
 const log = console.log;
 var app;
 var firstBT, secondBT;
-var firstBG, secondBG;
 var scale;
 var timer;
 var buttons = new Array();
@@ -10,6 +9,77 @@ var numbers = new Array();
 
 //Для запроса новых значений с сервера необходимо запустить test.js в папке express
 
+class Button extends PIXI.Sprite{
+    constructor(){
+        super();
+        this.texture = PIXI.Texture.fromImage('chip.png');
+        this.interactive = true;
+        this.buttonMode = true;
+        this.value = Math.round(Math.random() * 9) + 1;
+        this.anchor.set(0.5);
+        this.addNumber();                    
+        this.on('pointerdown', onClick);
+    }
+    addNumber(){
+        this.num = new Numer(this.value);
+        this.addChild(this.num);
+    }
+    removeNumber(){
+        this.removeChild(this.num);
+    }
+    setBG(image){
+        this.BG = new PIXI.Sprite.fromImage(image);
+        this.BG.anchor.set(0.5);
+        this.addChild(this.BG);
+    }
+    removeBG(){
+        this.removeChild(this.BG);
+        this.BG = null;
+    }
+    getNewValue(newVal){
+        this.removeNumber();
+        this.value = newVal;
+        this.addNumber();
+    }
+}
+
+function newValueForBT(){
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'http://localhost:3030/', false);//Запрос новых значений для элементов
+    xhr.send();
+    var num = JSON.parse(xhr.responseText);
+    firstBT.getNewValue(num['first']);
+    secondBT.getNewValue(num['second']);
+}
+
+class Numer extends PIXI.Sprite{
+    constructor(value){
+        if(value == 10)
+        {
+            super();
+            var number = new PIXI.Sprite(numbers[1]);
+            number.scale.set(1.5);
+            number.anchor.set(0.5);
+            number.x = -35;
+            number.y = 0;
+            this.addChild(number);
+            number = new PIXI.Sprite(numbers[0]);
+            number.anchor.set(0.5);
+            number.scale.set(1.5);
+            number.x = 25;
+            number.y = 0;
+            this.addChild(number);
+            this.anchor.set(0.5);
+        }
+        else
+        {
+            super(numbers[value]);
+            //var number = new PIXI.Sprite(numbers[button.value]);
+            this.anchor.set(0.5);
+            this.scale.set(1.5);
+        }
+    }
+}
 
 var firstOfPair, secondOfPair;
 
@@ -20,6 +90,7 @@ function FindPair()
     var index = Math.round(Math.random() * (tempArr.length - 1));
     secondOfPair = tempArr[index];    
 };
+
 
 
 
@@ -87,19 +158,6 @@ function initMusic(){
     soundDown = PIXI.sound.Sound.from("./down.mp3");  
 };
 
-//Добавляет новые значения полученные с сервера
-function newValueForBT(){
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://localhost:3030/', false);//Запрос новых значений для элементов
-    xhr.send();
-    var num = JSON.parse(xhr.responseText);
-    firstBT.children[0].destroy();
-    secondBT.children[0].destroy();
-    firstBT.value = num['first'];
-    secondBT.value = num['second'];
-    addNumber(firstBT);
-    addNumber(secondBT);
-}
 //Ticker для анимации уменьшения и увелечения кнопок
 //каждый тик уменьшает scale фишки
 //при достижении scale 0 заменяет значения на фишках и начинает их уеличивать
@@ -116,8 +174,8 @@ ticker.add(() =>{
         ticker.stop();
         firstBT.scale.set(scale);
         secondBT.scale.set(scale);
-        firstBT.removeChild(firstBG);
-        secondBT.removeChild(secondBG);
+        firstBT.removeBG();
+        secondBT.removeBG();
         newValueForBT();
         direct = 1;
         ticker.start();
@@ -140,10 +198,7 @@ const onClick = event =>{
     if(firstBT == null)
     {
         firstBT = event.currentTarget;
-        var glowTexture = PIXI.Texture.fromImage('glow.png');
-        firstBG = new PIXI.Sprite(glowTexture);
-        firstBG.anchor.set(0.5);
-        firstBT.addChild(firstBG);
+        firstBT.setBG('glow.png');
     }
     else if(secondBT == null)
         {
@@ -153,10 +208,7 @@ const onClick = event =>{
                 secondBT = null;
                 return;
             }
-            var glowTexture = PIXI.Texture.fromImage('glow.png');
-            secondBG = new PIXI.Sprite(glowTexture);
-            secondBG.anchor.set(0.5);
-            secondBT.addChild(secondBG);
+            secondBT.setBG('glow.png');
 
             if(firstBT.value == secondBT.value)
             {
@@ -166,8 +218,8 @@ const onClick = event =>{
             }
             else
             {
-                firstBT.removeChild(firstBG);
-                secondBT.removeChild(secondBG);
+                firstBT.removeBG();
+                secondBT.removeBG();
                 firstBT = null;
                 secondBT = null;
             }
@@ -175,45 +227,7 @@ const onClick = event =>{
     elapsedTime = 0;
     shakingTicker.start();
 }
-//Добавление соответствующей цифры на кнопку
-function addNumber(button){
-    if(button.value == 10)
-            {
-                var ten = new PIXI.Sprite() ;
-                var number = new PIXI.Sprite(numbers[1]);
-                number.scale.set(1.5);
-                number.anchor.set(0.5);
-                number.x = -35;
-                number.y = 0;
-                ten.addChild(number);
-                number = new PIXI.Sprite(numbers[0]);
-                number.anchor.set(0.5);
-                number.scale.set(1.5);
-                number.x = 25;
-                number.y = 0;
-                ten.addChild(number);
-                ten.anchor.set(0.5);
-                button.addChild(ten);
-            }
-            else
-            {
-                var number = new PIXI.Sprite(numbers[button.value]);
-                number.anchor.set(0.5);
-                number.scale.set(1.5);
-                button.addChild(number);
-            }
-};
-//Добавление кнопки на игровое поле
-function addButton(){
-    var button = new PIXI.Sprite.fromImage('chip.png');
-    button.interactive = true;
-    button.buttonMode = true;
-    button.value = Math.round(Math.random() * 9) + 1;
-    button.anchor.set(0.5);
-    addNumber(button);                    
-    button.on('pointerdown', onClick);
-    return button;
-};
+
 //Создание текстур для цифр
 function initNumbers(){
     numberTex = PIXI.Texture.fromImage("/BetFont/SafeDigits-ipadhd.png");
@@ -248,10 +262,10 @@ function init()
     {
         for(var col = 0; col < 4; col++)
         {
-            button = addButton();
-            button.x = 102 + (204) * col;
-            button.y = 102 + (204) * row;
-            buttons.push(button);
+            var temp = new Button();
+            temp.x = 102 + (204) * col;
+            temp.y = 102 + (204) * row;
+            buttons.push(temp);
             app.stage.addChild(buttons[row * 4 + col]);
         }
     }
