@@ -2,10 +2,10 @@ const log = console.log;
 var app;
 var firstBT, secondBT;
 var scale;
-var timer;
 var buttons = new Array();
 var numberTex;
 var numbers = new Array();
+var Shaking;
 
 //Для запроса новых значений с сервера необходимо запустить test.js в папке express
 
@@ -18,7 +18,7 @@ class Button extends PIXI.Sprite{
         this.value = Math.round(Math.random() * 9) + 1;
         this.anchor.set(0.5);
         this.addNumber();                    
-        this.on('pointerdown', onClick);
+        this.on('pointerdown', this.Click);
     }
     addNumber(){
         this.num = new Numer(this.value);
@@ -40,6 +40,40 @@ class Button extends PIXI.Sprite{
         this.removeNumber();
         this.value = newVal;
         this.addNumber();
+    }
+    Click(event){
+        Shaking.Stop();
+        if(firstBT == null)
+        {
+            firstBT = event.currentTarget;
+            firstBT.setBG('glow.png');
+        }
+        else if(secondBT == null)
+        {
+            secondBT = event.currentTarget;
+            if(secondBT == firstBT)
+            {
+                secondBT = null;
+                return;
+            }
+            secondBT.setBG('glow.png');
+
+            if(firstBT.value == secondBT.value)
+            {
+                scale = 1;
+                ticker.start();
+                soundDown.play();
+            }
+            else
+            {
+                firstBT.removeBG();
+                secondBT.removeBG();
+                firstBT = null;
+                secondBT = null;
+            }
+        }
+    elapsedTime = 0;
+    //Shaking.Start();
     }
 }
 
@@ -74,82 +108,94 @@ class Numer extends PIXI.Sprite{
         else
         {
             super(numbers[value]);
-            //var number = new PIXI.Sprite(numbers[button.value]);
             this.anchor.set(0.5);
             this.scale.set(1.5);
         }
     }
 }
 
-var firstOfPair, secondOfPair;
+FindPair()
+    {
+        var tempArr = buttons.filter(x => x.value == firstOfPair.value && x != firstOfPair);
+        var index = Math.round(Math.random() * (tempArr.length - 1));
+        secondOfPair = tempArr[index];    
+    }
 
-//Поиск парного значения для функции подрагивания
-function FindPair()
-{
-    var tempArr = buttons.filter(x => x.value == firstOfPair.value && x != firstOfPair);
-    var index = Math.round(Math.random() * (tempArr.length - 1));
-    secondOfPair = tempArr[index];    
+var angle = 0;
+var rotateDirect = 1;
+var maxAngle = 5;
+var elapsedTicks = 0;
+var delay = 120;
+class AnimationRotation{ 
+    constructor(){
+        this.rot = {
+            "angle": 0,
+            "rotationDirect": 1,
+            "maxAngle": 5
+        };
+        this.wait = {
+            "elapsedTicks": 0,
+            "delay": 120
+        };
+        log("create elapse");
+        this.delay = 120;
+        this.firstOfPair = null;
+        this.secondOfPair = null;
+        this.timer = new PIXI.ticker.Ticker();
+        this.rotator = new PIXI.ticker.Ticker();
+        this.timer.add(this.Tick);
+        this.rotator.add(this.Rotate);
+        //this.timer.stop();
+        this.rotator.stop();
+    }
+    Rotate(){
+        angle += rotationDirect * (maxAngle * Math.PI / (180 * 15));//Регулировка скорости поворота. Частота кадров 60
+        this.firstOfPair.rotation = angle;
+        this.secondOfPair.rotation = angle;
+        if(angle > maxAngle * (Math.PI / 180))
+        {
+            rotateDirect = -1;
+            angle = maxAngle * (Math.PI / 180);
+            this.firstOfPair.rotation = angle;
+            this.secondOfPair.rotation = angle; 
+        }
+        if(angle < 0)
+        {
+            angle = 0;
+            rotateDirect = 1;
+            firstOfPair.rotation = 0;
+            secondOfPair.rotation = 0;
+            this.rotator.stop();
+            firstOfPair = null;
+            secondOfPair = null;
+            this.timer.start();
+        }
+    }
+    Tick(){
+        elapsedTicks++;
+        if(elapsedTicks > delay){
+            this.firstOfPair = null;
+            this.secondOfPair = null;
+            while(this.secondOfPair == null)
+            {
+                var index = Math.round(Math.random() * 15);
+                this.firstOfPair = buttons[index];
+                FindPair();
+            }
+            this.timer.stop();
+            this.rotator.start();
+            elapsedTicks = 0;
+        }
+    }
+    Start(){
+        this.timer.start();
+    }
+    Stop(){
+        this.timer.stop();
+    }
 };
 
 
-
-
-//Подрагивание элементов
-//в каждый тик происходит поворот на часть необходимого угла
-//при достижении необходимого угла множитель задающий направление приравнивается к -1
-const shake = new PIXI.ticker.Ticker();
-var angle = 0;
-var rotateDirect = 1;
-const maxAngle = 1;//Угол на который поворачиваются фишки P.S. 1 градус незаметен для глаза
-shake.stop();
-shake.add(() =>{
-    angle += rotateDirect * (maxAngle * Math.PI / (180 * 15));//Регулировка скорости поворота. Частота кадров 60
-    firstOfPair.rotation = angle;
-    secondOfPair.rotation = angle;
-    if(angle > maxAngle * (Math.PI / 180))
-    {
-        rotateDirect = -1;
-        angle = maxAngle * (Math.PI / 180);
-        firstOfPair.rotation = angle;
-        secondOfPair.rotation = angle; 
-    }
-    if(angle < 0)
-    {
-        angle = 0;
-        rotateDirect = 1;
-        firstOfPair.rotation = 0;
-        secondOfPair.rotation = 0;
-        shake.stop();
-        firstOfPair = null;
-        secondOfPair = null;
-        shakingTicker.start();
-    }
-});
-
-//Подрагивание фишек при ожидании
-//каждые delay тиков выбирает две фишки и вызывает их подергивание
-var elapsedTime = 0;
-var delay = 120;
-const shakingTicker = new PIXI.ticker.Ticker();
-shakingTicker.stop();
-shakingTicker.add(() =>{
-    elapsedTime++;
-    //log("elapse time: {0}",elapsedTime);
-    if(elapsedTime > delay)
-    {
-        firstOfPair = null;
-        secondOfPair = null;
-        while(secondOfPair == null)
-        {
-            var index = Math.round(Math.random() * 15);
-            firstOfPair = buttons[index];
-            FindPair();
-        }
-        shakingTicker.stop();
-        shake.start();
-        elapsedTime = 0;
-    }
-});
 //Инициализация звуков
 var soundUp;
 var soundDown;
@@ -192,41 +238,6 @@ ticker.add(() =>{
         direct = -1;
     }
 });
-//Обработка нажатия на кнопку
-const onClick = event =>{
-    shakingTicker.stop();
-    if(firstBT == null)
-    {
-        firstBT = event.currentTarget;
-        firstBT.setBG('glow.png');
-    }
-    else if(secondBT == null)
-        {
-            secondBT = event.currentTarget;
-            if(secondBT == firstBT)
-            {
-                secondBT = null;
-                return;
-            }
-            secondBT.setBG('glow.png');
-
-            if(firstBT.value == secondBT.value)
-            {
-                scale = 1;
-                ticker.start();
-                soundDown.play();
-            }
-            else
-            {
-                firstBT.removeBG();
-                secondBT.removeBG();
-                firstBT = null;
-                secondBT = null;
-            }
-        }
-    elapsedTime = 0;
-    shakingTicker.start();
-}
 
 //Создание текстур для цифр
 function initNumbers(){
@@ -269,6 +280,6 @@ function init()
             app.stage.addChild(buttons[row * 4 + col]);
         }
     }
-    shakingTicker.start();
-    test_button = buttons[0];
+    Shaking = new AnimationRotation();
+    //Shaking.Start();
 }
